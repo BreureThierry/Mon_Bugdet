@@ -116,15 +116,19 @@ nav {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    gap: 5px;
     z-index: 100;
+    overflow-y: auto;
 }
 #logo_container {
-    max-width: 50%;
+    position: absolute;
+    max-width: 75%;
     margin: 0 auto 0 auto;
 }
 #logo_container img {
     width: 100%;
     height: auto;
+    filter: drop-shadow(0 0 2px var(--gray));
 }
 nav ul {
     width: 100%;
@@ -135,12 +139,13 @@ nav ul {
     padding: 10px;
 }
 #menu {
-    margin-bottom: 250px;
+    margin-top: 200px;
 }
 #menu_2 {
     margin-bottom: 20px;
 }
 nav ul li{
+    min-width: 200px;
     list-style-type: none;
     min-width: 200px;
     display: flex;
@@ -154,7 +159,7 @@ nav ul li i{
     -webkit-text-fill-color: transparent;
 }
 nav div {
-    min-width: 200px;
+    
     display: flex;
     justify-content: start;
     align-items: center;
