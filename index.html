@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fontawesome 6 Pro -->
+    <link preload rel="stylesheet" href="libs/all.css" rel="preload">
+     <!-- Style -->
+     <link rel="icon sortcut" href="img/logo_mon_budget.ico"/>
+    <link rel="stylesheet" href="style.css">
+    <!-- Script -->
+    <script src="script.js" defer></script>
+    <title>𝗠𝗢𝗡 𝗕𝗨𝗗𝗚𝗘𝗧</title>
+</head>
+<body>
+    <nav>
+        <div id="logo_container">
+            <img src="img/logo_mon_budget.png" alt="">
+        </div>
+        <ul id="menu">
+            <li onclick="openTab(event, 'Vue')" class="btn tablinks" id="default"><i class="fa-regular fa-chart-mixed"></i><p>Vue d'ensemble</p></li>
+            <li onclick="openTab(event, 'Revenus')" class="btn tablinks"><i class="fa-regular fa-chart-line-up"></i><p>Revenus</p></li>
+            <li onclick="openTab(event, 'Depenses')" class="btn tablinks"><i class="fa-regular fa-chart-line-down"></i><p>Dépenses</p></li>
+            <li onclick="openTab(event, 'Echeance')" class="btn tablinks"><i class="fa-regular fa-landmark"></i><p>Échéances</p></li>
+        </ul>
+        <ul id="menu_2">
+            <li onclick="openTab(event, 'Infos')" class="btn tablinks"><i class="fa-regular fa-circle-info"></i><p>Infos</p></li>
+            <li onclick="importData()" class="btn" id="importData"><i class="fa-regular fa-arrow-up-from-dotted-line"></i><p>Importer</p></li>
+            <li onclick="exportData()" class="btn"><i class="fa-regular fa-arrow-down-from-dotted-line"></i><p>Exporter</p></li>
+        </ul>
+    </nav>
+    <main>
+        <h1>Mon Budget</h1>
+        <!-- VUE GLOBAL -->
+        <section id="Vue" class="tabcontent">
+            <h2><i class="fa-regular fa-chart-mixed"></i> <p>Vue d'ensemble</p></h2>
+            <div class="table_container">
+                <table id="table_globalView">
+                    <thead>
+                        <tr>
+                            <th class="th_Icone"></th>
+                            <th class="th_Label">Label</th>
+                            <th class="th_Revenu">Revenu</th>
+                            <th class="th_Depense">Depense</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="td_Icone" colspan="1"><i class="fa-regular fa-chart-mixed"></i></td>
+                            <td class="label_Total" colspan="1">Total :</td>
+                            <td class="total_Montant_revenus_global" colspan="1" id="total_revenus_global">0 €</td>
+                            <td class="total_Montant_depenses_global" colspan="0" id="total_depenses_global">0 €</td>
+                        </tr>
+                        <tr>
+                            <td class="td_Icone" colspan="1"><i class="fa-regular fa-chart-mixed"></i></td>
+                            <td class="label_Reste" colspan="1">Reste :</td>
+                            <td class="total_Reste_negatif" colspan="2" id="total_reste_global">0 €</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+        <!-- REVENUS -->
+        <section id="Revenus" class="tabcontent">
+            <h2><i class="fa-regular fa-chart-line-up"></i> <p>Revenus</p></h2>
+            <div class="table_container">
+                <table id="table_revenus">
+                    <thead>
+                        <tr>
+                            <th class="th_Icone"></th>
+                            <th class="th_Date">Date</th>
+                            <th class="th_Label">Label</th>
+                            <th class="th_Montant">Montant</th>
+                            <th class="th_Action">Action</th>
+                            <th class="th_Check"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="1"></td>
+                            <td colspan="2">Total</td>
+                            <td class="total_Montant" colspan="1" id="total_revenus">0 €</td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="new_entry bottom-radius">
+                <h3>Ajouter un revenu :</h3>
+                <div class="custom_select">
+                    <button id="icon_button_revenu" type="button" class="btn_3"><i class="fa-solid fa-list"></i></button>
+                    <ul id="icon_list_revenu" style="display: none;"></ul>
+                </div>
+                <input type="text" name="date_revenu" id="select_date_revenu" placeholder="Date">
+                <input type="text" name="label_revenu" id="select_label_revenu" placeholder="Label *" required>
+                <input type="number" name="montant_revenu" id="select_montant_revenu" placeholder="Montant *" min="0" required>
+                <div type="button" id="new_entry_revenu" class="btn_3" onclick="ajouterItem('revenu')">Ajouter un revenu</div>
+            </div>
+        </section>
+        <!-- DEPENSES -->
+        <section id="Depenses" class="tabcontent">
+            <h2><i class="fa-regular fa-chart-line-down"></i> <p>Dépenses</p></h2>
+            <div class="table_container">
+                <table id="table_depenses">
+                    <thead>
+                        <tr>
+                            <th class="th_Icone"></th>
+                            <th class="th_Date">Date</th>
+                            <th class="th_Label">Label</th>
+                            <th class="th_Montant">Montant</th>
+                            <th class="th_Action">Action</th>
+                            <th class="th_Check"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="1"></td>
+                            <td colspan="2">Total</td>
+                            <td class="total_Montant" colspan="1" id="total_depenses">0 €</td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="new_entry bottom-radius">
+                <h3>Ajouter une dépense :</h3>
+                <div class="custom_select">
+                    <button id="icon_button_depense" type="button" class="btn_3"><i class="fa-solid fa-list"></i></button>
+                    <ul id="icon_list_depense" style="display: none;"></ul>
+                </div>
+                <input type="text" name="date_depense" id="select_date_depense" placeholder="Date">
+                <input type="text" name="label_depense" id="select_label_depense" placeholder="Label *" required>
+                <input type="number" name="montant_depense" id="select_montant_depense" placeholder="Montant *" min="0" required>
+                <div type="button" id="new_entry_depense" class="btn_3" onclick="ajouterItem('depense')">Ajouter une dépense</div>
+            </div>
+        </section>
+        <!-- ECHEANCES -->
+        <section id="Echeance" class="tabcontent">
+            <h2><i class="fa-regular fa-landmark"></i> <p>Échéances</p></h2>
+            <div class="new_entry  top-radius">
+                <h3>Ajouter un echéancier :</h3>
+                <div class="custom_select">
+                    <button id="icon_button_echeance" type="button" class="btn_3"><i class="fa-solid fa-list"></i></button>
+                    <ul id="icon_list_echeance" style="display: none;"></ul>
+                </div>
+                <input type="text" name="date_echeance" id="select_date_echeance" placeholder="Date">
+                <input type="text" name="label_echeance" id="select_label_echeance" placeholder="Label *" required>
+                <input type="number" name="montant_echeance" id="select_montant_echeance" placeholder="Montant *" min="0" required>
+                <div type="button" id="new_entry_echeance" class="btn_3" onclick="ajouterItem('echeance')">Ajouter</div>
+            </div>
+            <!-- Recevoir le tableau global des échéances -->
+            <div id="echeances_container"></div>
+            
+            <!-- Recevoir le détails des échéances (plusieurs tableaux d'échéance) -->
+            <div id="echeances_container_content"></div>
+
+        </section>
+        <!-- INFOS -->
+        <section id="Infos" class="tabcontent">
+            <h2><i class="fa-regular fa-circle-info"></i> Infos</h2>
+            <div class="p_container full-radius">
+                <h4>1. Données</h4>
+                <p>Les données sont stockées dans ton navigateur, en cas de nettoyage (avec CCleaner par exemple) il est possible que tes données soient éffacées.<br>Le bouton 'Exporter' te permet de faire une sauvegarde de tes données dans un fichier JSON que tu peux ensuite importer via le bouton 'Importer'.</p>
+                
+                <h4>2. Vue d'ensemble</h4>
+                <p>La vue d'ensemble est représentée par un tableau regroupant tous les revenus et toutes les dépenses mensuelles.<br> Les totaux sont calculés dynamiquement à chaque modification.</p>
+                
+                <h4>3. Revenus</h4>
+                <p>La page Revenus affiche un tableau qui regroupe tous tes revenus.<br> Tu peux en ajouter via le champ d'ajout sous le tableau, tu peux aussi modifier ou supprimer chaque entrée via les boutons d'action à droite de chaque ligne.<br> La case à cocher permet d'inclure l'entrée ciblée dans le calcul total, elles sont toutes cochées par défaut.</p>
+                
+                <h4>4. Dépenses</h4>
+                <p>La page Dépenses fonctionne exactement comme la page Revenus.</p>
+                
+                <h4>5. Échéance</h4>
+                <p>La page Échéance n'est pas encore disponible.<br> Par la suite, tu pourras y ajouter tes échéances impayées et suivre tes remboursements au fur et à mesure en mettant à jour les diverses échéances.</p>
+                
+                <h4>6. Importer</h4>
+                <p>Le bouton "Importer" te permet d'importer un fichier de données JSON.</p>
+                <p style="color: orange;">ATTENTION, Le fichier doit être nommé "data.json" et doit être dans le dossier import de Mon_Buget.</p>
+                <p style="color: red;" id="text_import"></p>
+
+                <h4>7. Exporter</h4>
+                <p>Exporte tes données dans un fichier data.JSON.<br>La sauvegarde te permet de ré-importer tes données en cas de perte suite à un nettoyage.</p>
+                <p style="color: orange;">ATTENTION, enregistre le fichier data.JSON dans le dossier "export" de Mon_Buget</p>
+            </div>
+        </section>
+        <!-- NOTIFICATION -->
+        <div id="notification" class="hidden"><p id="notification_content"></p></div>
+    </main>
+    <!-- MODAL D'ÉDITION -->
+    <div id="modal_edite_value">
+        <div id="edite_value" class="full-radius">
+            <div class="custom_select">
+                <button id="icon_button_cat" type="button" class="btn_3"><i class="fa-solid fa-list"></i></button>
+                <ul id="icon_list_cat" style="display: none;"></ul>
+            </div>
+            <input type="text" name="date_cat" id="select_date_cat" placeholder="Date">
+            <input type="text" name="label_cat" id="select_label_cat" placeholder="Label">
+            <input type="number" name="montant_cat" id="select_montant_cat" min="0" placeholder="Montant">
+            <div class="btn_3 btn_save" onclick="saveValue()">Sauvegarder</div>
+            <div class="btn_3 btn_cancel" onclick="closeModal()">Annuler</div>
+        </div>
+    </div>
+</body>
+</html>
