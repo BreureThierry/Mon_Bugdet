@@ -601,10 +601,12 @@ input, textarea {
 #icon_list_revenu, #icon_list_depense, #icon_list_echeance, #icon_list_cat {
     z-index: 250;
     position: absolute;
+    bottom: -88px;
+    left: -115px;
     border: none;
     border-radius: 7px;
     box-shadow: 0 0 4px var(--blue);
-    margin-top: 10px;
+    /* margin-bottom: 10px; */
     list-style-type: none;
     background-color: var(--gray_light);
     padding: 5px;
