@@ -8,17 +8,23 @@ function notification(txt, type) {
     const notification = document.getElementById("notification");
     const content = document.getElementById("notification_content");
     content.innerHTML = txt
+
+    // Adapte le style selon succès/erreur
     if (type == "suc") {
         notification.classList.add("btn_save");
     } if (type == "err") {
         notification.classList.add("btn_cancel");
     }
 
+    // Affiche la notif
     notification.classList.remove("hidden");
     notification.classList.add("visible");
     setTimeout(() => {
         notification.classList.remove("visible");
         notification.classList.add("hidden");
+        // Supprime le style après la notif
+        notification.classList.remove("btn_cancel");
+        notification.classList.remove("btn_save");
     }, notificationTime);
 }
 // Gestion des différentes pages (onglet)
@@ -54,15 +60,18 @@ async function testImport() {
     const importButon = document.getElementById("importData");   
     
     try {
-        // Récupère les données depuis data.json
+        // Récupère lun fichier dans le projet pour testé si fetch() est possible
         const response = await fetch('style.css');
+        // Si la réponse est mauvaise, vérouille le bouton import et interdit l'import
         if (!response.ok) {
             importEnabled = false;
             importButon.classList.add("btn_lock");
             document.getElementById("text_import").innerText = `Ta configuration ne te permet pas d'importer un fichier JSON.`;
+        // Sinon autorise l'import
         } else {
             importEnabled = true;
         }
+        // En cas d'erreur, vérouille le bouton import et interdit l'import (sécurité)
     } catch (error) {
         importEnabled = false;
         importButon.classList.add("btn_lock");
@@ -75,24 +84,21 @@ async function importData() {
         return notification('Ta configuration ne te permet pas d\'importer un fichier.', 'err');
     }
     try {
-        const choice = prompt("Importer de nouvelle données ? oui/non");
-        if (choice && (choice.toLowerCase() === 'oui' || choice.toLowerCase() === 'o')) {
-            // Récupère les données depuis data.json
-            const response = await fetch('import/data.json');
-            if (!response.ok) {
-                notification("Erreur lors du chargement du fichier JSON", 'err');
-                throw new Error('Erreur lors du chargement du fichier JSON');
+        openModalConfirmation("Etes-vous sur de vouloir importer un fichier ? Cette action écrasera les données actuelle", async(confirmed) => {
+            if (confirmed) {
+                // Récupère les données depuis data.json
+                const response = await fetch('import/data.json');
+                if (!response.ok) {
+                    notification("Erreur lors du chargement du fichier JSON", 'err');
+                    throw new Error('Erreur lors du chargement du fichier JSON');
+                }
+                const data = await response.json();
+                // Stocke les données dans le localStorage
+                localStorage.setItem('budgetData', JSON.stringify(data));
+                updateData();
+                notification("Fichier importé avec succès", 'suc');
             }
-            const data = await response.json();
-            // Stocke les données dans le localStorage
-            localStorage.setItem('budgetData', JSON.stringify(data));
-            updateData();
-            notification("Fichier importé avec succès", 'suc');
-        } else if (choice != 'oui' || choice != 'Oui' || choice != 'OUI') {
-            notification("Import annulée", 'err');
-        } else if (choice == 'non' || choice == 'Non' || choice == 'NON') {
-            notification("Import annulée", 'err');
-        }
+        });
     } catch (error) {
         console.error('Erreur:', error);
         return;
@@ -101,42 +107,38 @@ async function importData() {
 // Export JSON
 async function exportData() {
     try {
-        const choice = prompt("Exporter les données vers un fichier JSON ? oui/non");
+        openModalConfirmation("Exporter les données ?", async(confirmed) => {
+            if (confirmed) {
+                // Récupère les données du localStorage
+                const budgetData = localStorage.getItem('budgetData');
+                
+                if (!budgetData) {
+                    notification("Aucune donnée à exporter", 'err');
+                    throw new Error('Aucune donnée dans le localStorage');
+                }
         
-        if (choice && (choice.toLowerCase() === 'oui' || choice.toLowerCase() === 'o')) {
-            // Récupère les données du localStorage
-            const budgetData = localStorage.getItem('budgetData');
-            
-            if (!budgetData) {
-                notification("Aucune donnée à exporter", 'err');
-                throw new Error('Aucune donnée dans le localStorage');
+                // Crée un objet Blob avec les données
+                const blob = new Blob([budgetData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Crée un lien de téléchargement
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'data.json';
+                
+                // Déclenche le téléchargement
+                document.body.appendChild(a);
+                a.click();
+                
+                // Nettoie
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+                
+                notification("Export réussie", 'suc');
             }
-
-            // Crée un objet Blob avec les données
-            const blob = new Blob([budgetData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            // Crée un lien de téléchargement
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'data.json';
-            
-            // Déclenche le téléchargement
-            document.body.appendChild(a);
-            a.click();
-            
-            // Nettoie
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
-            
-            notification("Export réussie", 'suc');
-            
-        } else {
-            notification("Export annulée", 'err');
-        }
-        
+        });
     } catch (error) {
         notification(`Erreur lors de l'export`, 'err');
     }
@@ -350,31 +352,32 @@ function ajouterItemEcheance(echeanceId) {
 
     // 2. Validation des données
     if (!label || isNaN(montant) || montant <= 0) {
-        notification('Veuillez remplir les champs obligatoires (*)', 'err');
+        notification('Veuillez remplir les champs obligatoires *', 'err');
         return;
     }
 
-    // 3. Création du nouvel échéancier
-    const newEcheancier = {
-        id: generateId(),
-        date_echeance: date || 'rien', // 'rien' si date vide
-        label_echeance: label,
-        montant_echeance: montant
-    };
-
-    // 4. Récupération des données existantes
+    // 3. Récupération des données existantes
     const budgetData = JSON.parse(localStorage.getItem('budgetData')) || { 
         revenus: [], 
         depenses: [], 
         echeances: [] 
     };
 
-    // 5. Recherche et mise à jour de l'échéance correspondante
+    // 4. Recherche et mise à jour de l'échéance correspondante
     const echeance = budgetData.echeances.find(e => e.id === echeanceId);
     if (!echeance) {
         notification("Échéance introuvable", 'err');
         return;
     }
+
+    // 5. Création du nouvel échéancier
+    const newEcheancier = {
+        id: generateId(),
+        icon: echeance.icon,
+        date_echeance: date || 'rien', // 'rien' si date vide
+        label_echeance: label,
+        montant_echeance: montant
+    };
 
     // 6. Ajout du nouvel échéancier
     echeance.echeancier.push(newEcheancier);
@@ -566,7 +569,7 @@ function updateDataEcheances() {
             
             detailTable += `
                 <tr>
-                    <td class="td_Icone"><i class="${echeance.icon}"></i></td>
+                    <td class="td_Icone"><i class="${element.icon}"></i></td>
                     <td class="td_Date">${element.date_echeance}</td>
                     <td class="td_Label">${element.label_echeance}</td>
                     <td class="td_Montant">${element.montant_echeance.toFixed(2)} €</td>
@@ -642,8 +645,60 @@ function updateData() {
 ////////////////////////////////////////////////////////////
 //////////////////////////  MODAL  /////////////////////////
 ////////////////////////////////////////////////////////////
+let modalConfirmOpen = false;
+let currentCallback = null;
 
-// Fonction pour ouvrir la modal d'édition
+// Fonction pour ouvrir la modal de confirmation // ---> CONFIRMATION
+function openModalConfirmation(message, callback) {
+    const modalConfirm = document.getElementById('modal_confirmation');
+    const messageConfirm = document.getElementById('message_confirmation');
+    
+    // Stocker le callback
+    currentCallback = callback;
+    
+    // Mettre à jour le message
+    messageConfirm.textContent = message;
+    
+    // Ouvrir la modal
+    modalConfirm.style.display = 'flex';
+    modalConfirmOpen = true;
+}
+// Fonction pour confirmer l'action
+function confirmAction() {
+    if (currentCallback) {
+        currentCallback(true); // Exécuter le callback avec true pour confirmation
+    }
+    closeModalConfirmation();
+}
+// Fonction pour annuler l'action
+function cancelAction() {
+    if (currentCallback) {
+        currentCallback(false); // Exécuter le callback avec false pour annulation
+    }
+    closeModalConfirmation();
+}
+// Fonction pour fermer la modal
+function closeModalConfirmation() {
+    const modalConfirm = document.getElementById('modal_confirmation');
+    modalConfirm.style.display = 'none';
+    modalConfirmOpen = false;
+    currentCallback = null;
+}
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+    // Écouteurs pour les boutons de la modal
+    document.getElementById('confirm_yes').addEventListener('click', confirmAction);
+    document.getElementById('confirm_no').addEventListener('click', cancelAction);
+    
+    // Fermer la modal en cliquant à l'extérieur
+    document.getElementById('modal_confirmation').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modal_confirmation')) {
+            cancelAction();
+        }
+    });
+});
+
+// Fonction pour ouvrir la modal d'édition // ---> ÉDITION
 function openEditModal(itemId, itemType) {
     // 1. Récupérer les données existantes
     const budgetData = JSON.parse(localStorage.getItem('budgetData')) || { 
@@ -653,6 +708,7 @@ function openEditModal(itemId, itemType) {
     // 2. Trouver l'élément à éditer selon son type
     let itemToEdit;
     let category;
+    let parentEcheance = null;
     
     switch(itemType) {
         case 'revenu':
@@ -672,6 +728,7 @@ function openEditModal(itemId, itemType) {
             for (const echeance of budgetData.echeances) {
                 itemToEdit = echeance.echeancier.find(e => e.id === itemId);
                 if (itemToEdit) {
+                    parentEcheance = echeance;
                     category = 'echeancier';
                     break;
                 }
@@ -690,19 +747,15 @@ function openEditModal(itemId, itemType) {
     // 3. Préparer la modal
     const modal = document.getElementById('modal_edite_value');
     const iconSelect = document.getElementById('icon_list_cat');
+    const iconButton = document.getElementById('icon_button_cat');
+    initIconList(iconSelect, 'icon_button_cat');
+    // Afficher le sélecteur d'icône pour les échéanciers aussi
+    document.querySelector('.custom_select').style.display = 'block';
     
-    // Afficher/masquer les champs selon le type
-    document.querySelector('.custom_select').style.display = 
-        (itemType === 'echeancier') ? 'none' : 'block';
+    // 4. Pré-remplir les champs
+    const iconToShow = itemToEdit.icon || (parentEcheance?.icon || 'fa-solid fa-tag');
+    iconButton.innerHTML = `<i class="${iconToShow}"></i>`;
     
-    // 4. Pré-remplir les champs (sans gestion de date)
-    if (itemType !== 'echeancier') {
-        document.getElementById('icon_button_cat').innerHTML = 
-            `<i class="${itemToEdit.icon}"></i>`;
-    }
-    
-    // document.getElementById('icon_button_cat').value = 
-    //     itemToEdit.icon || itemToEdit.icon_echeance || '';
     document.getElementById('select_date_cat').value = 
         itemToEdit.date || itemToEdit.date_echeance || '';
     
@@ -716,81 +769,79 @@ function openEditModal(itemId, itemType) {
     modal.dataset.itemId = itemId;
     modal.dataset.itemType = itemType;
     modal.dataset.category = category;
+    if (parentEcheance) {
+        modal.dataset.parentEcheanceId = parentEcheance.id;
+    }
     
     // 6. Ouvrir la modal
     modal.style.display = 'flex';
     
-    // 7. Initialiser la liste des icônes si nécessaire
-    if (itemType !== 'echeancier') {
-        initIconList(iconSelect, 'icon_button_cat');
-    }
+    // 7. Initialiser la liste des icônes
+    initIconList(iconSelect, 'icon_button_cat');
 }
 // Fonction pour supprimer une valeur
 function deleteItem(itemId, itemType) {
-    // 1. Demande de confirmation
-    if (!confirm("Voulez-vous vraiment supprimer cet élément ?")) {
-        notification("Suppression annulée", 'err');
-        return;
-    }
-
     try {
-        // 2. Récupération des données
-        const budgetData = JSON.parse(localStorage.getItem('budgetData')) || {
-            revenus: [],
-            depenses: [],
-            echeances: []
-        };
-
-        // 3. Recherche et suppression selon le type
-        let found = false;
+        // 1. Demande de confirmation
+        openModalConfirmation("Supprimer ?", async(confirmed) => {
+            if (confirmed) {
+                // 2. Récupération des données
+                const budgetData = JSON.parse(localStorage.getItem('budgetData')) || {
+                    revenus: [],
+                    depenses: [],
+                    echeances: []
+                };
         
-        switch(itemType) {
-            case 'revenu':
-                budgetData.revenus = budgetData.revenus.filter(item => item.id !== itemId);
-                found = budgetData.revenus.length !== budgetData.revenus.originalLength;
-                break;
+                // 3. Recherche et suppression selon le type
+                let found = false;
                 
-            case 'depense':
-                budgetData.depenses = budgetData.depenses.filter(item => item.id !== itemId);
-                found = budgetData.depenses.length !== budgetData.depenses.originalLength;
-                break;
-                
-            case 'echeance':
-                budgetData.echeances = budgetData.echeances.filter(item => item.id !== itemId);
-                found = budgetData.echeances.length !== budgetData.echeances.originalLength;
-                break;
-                
-            case 'echeancier':
-                // Cas spécial pour les échéanciers imbriqués
-                for (const echeance of budgetData.echeances) {
-                    const initialLength = echeance.echeancier.length;
-                    echeance.echeancier = echeance.echeancier.filter(e => e.id !== itemId);
-                    if (echeance.echeancier.length !== initialLength) {
-                        found = true;
+                switch(itemType) {
+                    case 'revenu':
+                        budgetData.revenus = budgetData.revenus.filter(item => item.id !== itemId);
+                        found = budgetData.revenus.length !== budgetData.revenus.originalLength;
                         break;
-                    }
+                        
+                    case 'depense':
+                        budgetData.depenses = budgetData.depenses.filter(item => item.id !== itemId);
+                        found = budgetData.depenses.length !== budgetData.depenses.originalLength;
+                        break;
+                        
+                    case 'echeance':
+                        budgetData.echeances = budgetData.echeances.filter(item => item.id !== itemId);
+                        found = budgetData.echeances.length !== budgetData.echeances.originalLength;
+                        break;
+                        
+                    case 'echeancier':
+                        // Cas spécial pour les échéanciers imbriqués
+                        for (const echeance of budgetData.echeances) {
+                            const initialLength = echeance.echeancier.length;
+                            echeance.echeancier = echeance.echeancier.filter(e => e.id !== itemId);
+                            if (echeance.echeancier.length !== initialLength) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        break;
+                        
+                    default:
+                        notification("Type d'élément inconnu", 'err');
+                        return;
                 }
-                break;
-                
-            default:
-                notification("Type d'élément inconnu", 'err');
-                return;
-        }
-
-        // 4. Vérification et sauvegarde
-        if (!found) {
-            notification("Élément introuvable", 'err');
-            return;
-        }
-
-        localStorage.setItem('budgetData', JSON.stringify(budgetData));
-        notification("Élément supprimé avec succès", 'suc');
         
-        // 5. Mise à jour de l'affichage
-        updateData(); // Fonction globale qui rafraîchit l'interface
-
+                // 4. Vérification et sauvegarde
+                if (!found) {
+                    notification("Élément introuvable", 'err');
+                    return;
+                }
+        
+                localStorage.setItem('budgetData', JSON.stringify(budgetData));
+                notification("Élément supprimé avec succès", 'suc');
+                
+                // 5. Mise à jour de l'affichage
+                updateData(); // Fonction globale qui rafraîchit l'interface
+            }
+        });
     } catch (error) {
-        // console.error("Erreur lors de la suppression :", error);
         notification("Erreur lors de la suppression", 'err');
     }
 }
@@ -800,17 +851,17 @@ function saveValue() {
     const itemId = modal.dataset.itemId;
     const itemType = modal.dataset.itemType;
     const category = modal.dataset.category;
+    const parentEcheanceId = modal.dataset.parentEcheanceId;
     
-    // 1. Récupérer les valeurs (sans conversion de date)
+    // 1. Récupérer les valeurs
+    const newIcon = document.getElementById('icon_button_cat').querySelector('i').className;
     const newDate = document.getElementById('select_date_cat').value;
     const newLabel = document.getElementById('select_label_cat').value.trim();
     const newMontant = parseFloat(document.getElementById('select_montant_cat').value);
-    const newIcon = itemType === 'echeancier' ? null 
-        : document.getElementById('icon_button_cat').querySelector('i').className;
     
-    // 2. Validation simple
+    // 2. Validation
     if (!newLabel || isNaN(newMontant)) {
-        notification('Veuillez remplir tous les champs obligatoires', 'err');
+        notification('Veuillez remplir les champs obligatoires *', 'err');
         return;
     }
 
@@ -819,13 +870,14 @@ function saveValue() {
     
     if (itemType === 'echeancier') {
         // Cas spécial pour les échéanciers
-        for (const echeance of budgetData.echeances) {
-            const echeancier = echeance.echeancier.find(e => e.id === itemId);
+        const parentEcheance = budgetData.echeances.find(e => e.id === parentEcheanceId);
+        if (parentEcheance) {
+            const echeancier = parentEcheance.echeancier.find(e => e.id === itemId);
             if (echeancier) {
+                echeancier.icon = newIcon;
                 echeancier.date_echeance = newDate;
                 echeancier.label_echeance = newLabel;
                 echeancier.montant_echeance = newMontant;
-                break;
             }
         }
     } else {
@@ -841,13 +893,14 @@ function saveValue() {
 
     // 4. Sauvegarder et mettre à jour
     localStorage.setItem('budgetData', JSON.stringify(budgetData));
-    closeModal();
-    updateData(); // Fonction globale qui rafraîchit l'affichage
+    modal.style.display = 'none';
+    updateData();
     notification('Modifications enregistrées', 'suc');
 }
 // Fonctions utilitaires
 function closeModal() {
     document.getElementById('modal_edite_value').style.display = 'none';
+    document.getElementById('modal_confirmation').style.display = 'none';
 }
 
 ////////////////////////////////////////////////////////////
@@ -916,7 +969,8 @@ function initIconList(container, buttonId) {
         const allLists = [
             document.getElementById('icon_list_revenu'),
             document.getElementById('icon_list_depense'), 
-            document.getElementById('icon_list_echeance')
+            document.getElementById('icon_list_echeance'),
+            document.getElementById('icon_list_cat')
         ];
         
         allLists.forEach(list => {
@@ -948,6 +1002,7 @@ window.addEventListener('DOMContentLoaded', () => {
     initIconList(document.getElementById('icon_list_revenu'), 'icon_button_revenu');
     initIconList(document.getElementById('icon_list_depense'), 'icon_button_depense');
     initIconList(document.getElementById('icon_list_echeance'), 'icon_button_echeance');
+    initIconList(document.getElementById('icon_list_cat'), 'icon_button_cat');
 
     // Affiche la page par défaut
     document.getElementById("default").click();

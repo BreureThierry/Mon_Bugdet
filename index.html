@@ -25,8 +25,8 @@
         </ul>
         <ul id="menu_2">
             <li onclick="openTab(event, 'Infos')" class="btn tablinks"><i class="fa-regular fa-circle-info"></i><p>Infos</p></li>
-            <li onclick="importData()" class="btn" id="importData"><i class="fa-regular fa-arrow-up-from-dotted-line"></i><p>Importer</p></li>
-            <li onclick="exportData()" class="btn"><i class="fa-regular fa-arrow-down-from-dotted-line"></i><p>Exporter</p></li>
+            <li onclick="importData();" id="importData" class="btn"><i class="fa-regular fa-arrow-up-from-dotted-line"></i><p>Importer</p></li>
+            <li onclick="exportData();" class="btn"><i class="fa-regular fa-arrow-down-from-dotted-line"></i><p>Exporter</p></li>
         </ul>
     </nav>
     <main>
@@ -165,19 +165,19 @@
             <h2><i class="fa-regular fa-circle-info"></i> Infos</h2>
             <div class="p_container full-radius">
                 <h4>1. Données</h4>
-                <p>Les données sont stockées dans ton navigateur, en cas de nettoyage (avec CCleaner par exemple) il est possible que tes données soient éffacées.<br>Le bouton 'Exporter' te permet de faire une sauvegarde de tes données dans un fichier JSON que tu peux ensuite importer via le bouton 'Importer'.</p>
+                <p>Les données sont stockées dans le navigateur, en cas de nettoyage (avec CCleaner par exemple) il est possible que les données soient éffacées.<br>Le bouton 'Exporter' te permet de sauvegarder tes données dans un fichier data.JSON que tu peux ensuite importer via le bouton 'Importer'.</p>
                 
                 <h4>2. Vue d'ensemble</h4>
                 <p>La vue d'ensemble est représentée par un tableau regroupant tous les revenus et toutes les dépenses mensuelles.<br> Les totaux sont calculés dynamiquement à chaque modification.</p>
                 
                 <h4>3. Revenus</h4>
-                <p>La page Revenus affiche un tableau qui regroupe tous tes revenus.<br> Tu peux en ajouter via le champ d'ajout sous le tableau, tu peux aussi modifier ou supprimer chaque entrée via les boutons d'action à droite de chaque ligne.<br> La case à cocher permet d'inclure l'entrée ciblée dans le calcul total, elles sont toutes cochées par défaut.</p>
+                <p>La page Revenus affiche un tableau qui regroupe tous les revenus.<br> Tu peux en ajouter via le champ d'ajout sous le tableau, tu peux aussi modifier ou supprimer chaque entrée via les boutons d'action à droite de chaque ligne.<br> La case à cocher permet d'inclure l'entrée ciblée dans le calcul total, elles sont toutes cochées par défaut.</p>
                 
                 <h4>4. Dépenses</h4>
                 <p>La page Dépenses fonctionne exactement comme la page Revenus.</p>
                 
                 <h4>5. Échéance</h4>
-                <p>La page Échéance n'est pas encore disponible.<br> Par la suite, tu pourras y ajouter tes échéances impayées et suivre tes remboursements au fur et à mesure en mettant à jour les diverses échéances.</p>
+                <p>La page Échéance est représentée par un tableau principal qui regroupe les échéances.<br>Un champ d'ajout situé au-dessus du tableau principal permet d'y ajouter tes échéances, impayées, etc...<br>Pour chaque échéance, un tableau détaillé est généré dans lequel vous pouvez ajouter et suivre les remboursements au fur et à mesure en mettant à jour les diverses échéances via le champ d'ajout présent au pied du tableau.</p>
                 
                 <h4>6. Importer</h4>
                 <p>Le bouton "Importer" te permet d'importer un fichier de données JSON.</p>
@@ -204,6 +204,16 @@
             <input type="number" name="montant_cat" id="select_montant_cat" min="0" placeholder="Montant">
             <div class="btn_3 btn_save" onclick="saveValue()">Sauvegarder</div>
             <div class="btn_3 btn_cancel" onclick="closeModal()">Annuler</div>
+        </div>
+    </div>
+    <!-- MODAL DE CONFIRMATION -->
+    <div id="modal_confirmation">
+        <div id="confirmation" class="full-radius">
+            <h5 id="message_confirmation"></h5>
+            <div id="btn_confirmation">
+                <div id="confirm_yes" class="btn_3 btn_save">Confirmer</div>
+                <div id="confirm_no" class="btn_3 btn_cancel">Annuler</div>
+            </div>
         </div>
     </div>
 </body>
