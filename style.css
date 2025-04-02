@@ -317,10 +317,13 @@ nav div i{
     border-top-right-radius: 25px;
     max-width: var(--maxWidth);
     width: 100%;
+    min-width: 400px;
     margin: 0 auto 0 auto;
     margin-bottom:40px;
 }
 table {
+    min-width: 400px;
+    max-width: var(--maxWidth);
     width: 100%;
     border-collapse: collapse;
 }
@@ -374,12 +377,13 @@ tr {
     text-align: center;
 }
 .td_Action {
-    width: 120px;
+    max-width: 120px;
     text-align: center;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
+    height: auto;
 }
 .th_Check {
     border-top-right-radius: 25px;
@@ -393,10 +397,12 @@ tr {
 
 /* VUE D'ENSEMBLE */
 .th_Revenu {
+    min-width: 120px;
     width: 150px;
     text-align: center;
 }
 .th_Depense {
+    min-width: 120px;
     width: 150px;
     text-align: center;
     border-top-right-radius: 25px;
@@ -435,6 +441,7 @@ tr {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    min-width: 40px;
 }
 /* Case à cocher custom */
 .td_Check .custom-checkbox {
@@ -496,6 +503,7 @@ tr {
     font-weight: bold;
 }
 .total_Montant {
+    min-width: 100px;
     background: -webkit-linear-gradient(45deg, var(--green), var(--blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
