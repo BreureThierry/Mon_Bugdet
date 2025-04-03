@@ -53,59 +53,52 @@ function openTab(evt, TabName) {
 ////////////////////////////////////////////////////////////
 ////////////////////////  UTILITAIRE  //////////////////////
 ////////////////////////////////////////////////////////////
-let importEnabled;
 
-// Test d'import (selon server local ou pas)
-async function testImport() {  
-    const importButon = document.getElementById("importData");   
-    
-    try {
-        // Récupère lun fichier dans le projet pour testé si fetch() est possible
-        const response = await fetch('style.css');
-        // Si la réponse est mauvaise, vérouille le bouton import et interdit l'import
-        if (!response.ok) {
-            importEnabled = false;
-            importButon.classList.add("btn_lock");
-            document.getElementById("text_import").innerText = `Ta configuration ne te permet pas d'importer un fichier JSON.`;
-        // Sinon autorise l'import
-        } else {
-            importEnabled = true;
-        }
-        // En cas d'erreur, vérouille le bouton import et interdit l'import (sécurité)
-    } catch (error) {
-        importEnabled = false;
-        importButon.classList.add("btn_lock");
-        document.getElementById("text_import").innerText = `Ta configuration ne te permet pas d'importer un fichier JSON.`;
-    }
-}
 // Import JSON
-async function importData() {
-    if (importEnabled == false) {
-        return notification('Ta configuration ne te permet pas d\'importer un fichier.', 'err');
-    }
+function importData() {
     try {
-        openModalConfirmation("Etes-vous sur de vouloir importer un fichier ? Cette action écrasera les données actuelle", async(confirmed) => {
-            if (confirmed) {
-                // Récupère les données depuis data.json
-                const response = await fetch('import/data.json');
-                if (!response.ok) {
-                    notification("Erreur lors du chargement du fichier JSON", 'err');
-                    throw new Error('Erreur lors du chargement du fichier JSON');
-                }
-                const data = await response.json();
-                // Stocke les données dans le localStorage
-                localStorage.setItem('budgetData', JSON.stringify(data));
-                updateData();
-                notification("Fichier importé avec succès", 'suc');
-            }
+        openModalConfirmation("Êtes-vous sûr de vouloir importer un fichier ? Cette action écrasera les données actuelles", (confirmed) => {
+            if (!confirmed) return;
+
+            // Création dynamique d'un input file
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            fileInput.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        localStorage.setItem('budgetData', JSON.stringify(data));
+                        updateData();
+                        notification("Fichier importé avec succès", 'suc');
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        notification("Le fichier n'est pas un JSON valide", 'err');
+                    }
+                };
+                
+                reader.onerror = () => {
+                    notification("Erreur lors de la lecture du fichier", 'err');
+                };
+                
+                reader.readAsText(file);
+            };
+
+            // Déclenche le sélecteur de fichier
+            fileInput.click();
         });
     } catch (error) {
-        console.error('Erreur:', error);
-        return;
+        
     }
 }
 // Export JSON
-async function exportData() {
+function exportData() {
     try {
         openModalConfirmation("Exporter les données ?", async(confirmed) => {
             if (confirmed) {
@@ -141,6 +134,39 @@ async function exportData() {
         });
     } catch (error) {
         notification(`Erreur lors de l'export`, 'err');
+    }
+}
+// Supprimer les Données
+function cleanData() {
+    try {
+        openModalConfirmation("Êtes-vous sûr de vouloir supprimer vos données ? Cette action écrasera toutes les données", (confirmed) => {
+            if (!confirmed) return;
+            // Récupère les données du localStorage
+            const budgetData = localStorage.getItem('budgetData');
+                
+            if (!budgetData) {
+                notification("Aucune donnée à supprimer", 'err');
+                throw new Error('Aucune donnée dans le localStorage');
+            }
+            try {
+                // Suppression effective des données
+                localStorage.removeItem('budgetData');
+                
+                // Réinitialisation de l'interface
+                updateData();
+                
+                // Feedback utilisateur
+                notification("Toutes les données ont été supprimées avec succès", 'suc');
+                
+                // Optionnel : Réinitialisation des valeurs par défaut si nécessaire
+                // initDefaultData(); 
+                
+            } catch (error) {
+                notification("Une erreur technique est survenue lors de la suppression", 'err');
+            }
+        });
+    } catch (error) {
+        notification("Erreur lors de la suppression des données", 'err');
     }
 }
 // Chargement des données du localStorage
@@ -992,9 +1018,6 @@ function initIconList(container, buttonId) {
 
 // Ouvre la vue d'ensemble au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
-    // Test pour activer/désactiver l'import de fichier JSON
-    testImport();
-
     // Met à jour tous les tableaux
     updateData();
 

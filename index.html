@@ -25,8 +25,9 @@
         </ul>
         <ul id="menu_2">
             <li onclick="openTab(event, 'Infos')" class="btn tablinks"><i class="fa-regular fa-circle-info"></i><p>Infos</p></li>
-            <li onclick="importData();" id="importData" class="btn"><i class="fa-regular fa-arrow-up-from-dotted-line"></i><p>Importer</p></li>
+            <li onclick="importData();" class="btn"><i class="fa-regular fa-arrow-up-from-dotted-line"></i><p>Importer</p></li>
             <li onclick="exportData();" class="btn"><i class="fa-regular fa-arrow-down-from-dotted-line"></i><p>Exporter</p></li>
+            <li onclick="cleanData();" class="btn"><i class="fa-regular fa-trash-list"></i><p>Tout supprimer</p></li>
         </ul>
     </nav>
     <main>
@@ -165,28 +166,42 @@
             <h2><i class="fa-regular fa-circle-info"></i> Infos</h2>
             <div class="p_container full-radius">
                 <h4>1. Données</h4>
-                <p>Les données sont stockées dans le navigateur, en cas de nettoyage (avec CCleaner par exemple) il est possible que les données soient éffacées.<br>Le bouton 'Exporter' te permet de sauvegarder tes données dans un fichier data.JSON que tu peux ensuite importer via le bouton 'Importer'.</p>
-                
-                <h4>2. Vue d'ensemble</h4>
-                <p>La vue d'ensemble est représentée par un tableau regroupant tous les revenus et toutes les dépenses mensuelles.<br> Les totaux sont calculés dynamiquement à chaque modification.</p>
-                
-                <h4>3. Revenus</h4>
-                <p>La page Revenus affiche un tableau qui regroupe tous les revenus.<br> Tu peux en ajouter via le champ d'ajout sous le tableau, tu peux aussi modifier ou supprimer chaque entrée via les boutons d'action à droite de chaque ligne.<br> La case à cocher permet d'inclure l'entrée ciblée dans le calcul total, elles sont toutes cochées par défaut.</p>
-                
-                <h4>4. Dépenses</h4>
-                <p>La page Dépenses fonctionne exactement comme la page Revenus.</p>
-                
-                <h4>5. Échéance</h4>
-                <p>La page Échéance est représentée par un tableau principal qui regroupe les échéances.<br>Un champ d'ajout situé au-dessus du tableau principal permet d'y ajouter tes échéances, impayées, etc...<br>Pour chaque échéance, un tableau détaillé est généré dans lequel vous pouvez ajouter et suivre les remboursements au fur et à mesure en mettant à jour les diverses échéances via le champ d'ajout présent au pied du tableau.</p>
-                
-                <h4>6. Importer</h4>
-                <p>Le bouton "Importer" te permet d'importer un fichier de données JSON.</p>
-                <p style="color: orange;">ATTENTION, Le fichier doit être nommé "data.json" et doit être dans le dossier import de Mon_Buget.</p>
-                <p style="color: red;" id="text_import"></p>
+<p>Vos données sont stockées localement dans votre navigateur.<br>Attention : un nettoyage du navigateur (avec CCleaner ou autre utilitaire) peut supprimer ces données.<br>Utilisez le bouton <strong>Exporter</strong> pour sauvegarder vos données dans un fichier JSON, que vous pourrez réimporter ultérieurement via le bouton <strong>Importer</strong>.</p>
 
-                <h4>7. Exporter</h4>
-                <p>Exporte tes données dans un fichier data.JSON.<br>La sauvegarde te permet de ré-importer tes données en cas de perte suite à un nettoyage.</p>
-                <p style="color: orange;">ATTENTION, enregistre le fichier data.JSON dans le dossier "export" de Mon_Buget</p>
+<h4>2. Vue d'ensemble</h4>
+<p>Cette section affiche un tableau récapitulatif de tous vos revenus et dépenses mensuels.<br>Les totaux sont recalculés automatiquement après chaque modification.</p>
+
+<h4>3. Revenus</h4>
+<p>Cette page présente un tableau listant l'ensemble de vos revenus.<br>Vous pouvez :
+    <ul>
+        <li>Ajouter de nouveaux revenus via le formulaire sous le tableau</li>
+        <li>Modifier ou supprimer des entrées grâce aux boutons d'action</li>
+        <li>Inclure/exclure une entrée du calcul total via la case à cocher (activée par défaut)</li>
+    </ul>
+</p>
+
+<h4>4. Dépenses</h4>
+<p>Cette fonctionnalité est identique à la section <strong>Revenus</strong>, mais s'applique à vos dépenses.</p>
+
+<h4>5. Échéances</h4>
+<p>Cette section vous permet de gérer vos échéances et paiements :
+    <ul>
+        <li>Le tableau principal liste toutes vos échéances</li>
+        <li>Le formulaire d'ajout en haut du tableau permet de créer de nouvelles échéances</li>
+        <li>Chaque échéance dispose d'un sous-tableau détaillé pour suivre les remboursements</li>
+        <li>Le formulaire en bas de tableau permet d'ajouter des paiements partiels</li>
+    </ul>
+</p>
+
+<h4>6. Importer</h4>
+<p>Ce bouton vous permet d'importer vos données à partir d'un fichier JSON précédemment exporté.</p>
+<p style="color: orange; font-weight: bold;">Important : Le fichier doit être au format JSON généré par la fonction d'export de cette application.</p>
+
+<h4>7. Exporter</h4>
+<p>Générez un fichier JSON contenant l'ensemble de vos données. Cette sauvegarde vous permettra de restaurer vos informations ultérieurement.</p>
+
+<h4>8. Tout supprimer</h4>
+<p>Cette fonction efface définitivement toutes vos données enregistrées dans l'application.</p>
             </div>
         </section>
         <!-- NOTIFICATION -->
